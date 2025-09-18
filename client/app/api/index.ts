@@ -2,25 +2,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { MongoClient } from "mongodb";
 import { createClient } from "@supabase/supabase-js";
-import "dotenv";
+
 
 const MONGO_URI: string = process.env.MONGO_URI!;
 const MONGO_DB = process.env.MONGO_DB;
-const SUPABASE_URL: string = process.env.SUPABASE_URL!;
-const SUPABASE_SERVICE_KEY: string = process.env.SUPABASE_SERVICE_KEY!;
+const SUPABASE_URL: string = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_SERVICE_KEY: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 let cachedClient: MongoClient | null = null;
 
 async function getDB() {
-  if (
-    cachedClient &&
-    (cachedClient as any).topolgy &&
-    (cachedClient as any).topolgy.isConnected()
-  ) {
-    return cachedClient.db(MONGO_DB);
-  }
+  if (cachedClient)return cachedClient.db(MONGO_DB);
   const client = new MongoClient(MONGO_URI);
   await client.connect();
   cachedClient = client;
@@ -40,7 +34,7 @@ export default async function handler(
   try {
     if (req.method !== "POST") return res.status(405).end();
     const authHeader = req.headers.authorization || "";
-    const token = authHeader.replace("Bearer", "");
+    const token = authHeader.replace("Bearer", "").trim();
     if (!token) return res.status(401).json({ error: "Missing Token" });
     const user = await verifyTokenAndGetUser(token);
     const { start_time, end_time } = req.body;
@@ -54,9 +48,12 @@ export default async function handler(
 
     const db = await getDB();
 
+
+
+
     const overlapping = await db.collection("quiet_scheduler").findOne({
       user_id: user.id,
-      start_time: { $It: newEnd },
+      start_time: { $lt: newEnd },
       end_time: { $gt: newStart },
     });
     if (overlapping) {
