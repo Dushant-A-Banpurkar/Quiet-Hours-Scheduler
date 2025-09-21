@@ -16,7 +16,6 @@ export async function POST(req: Request) {
   const body = await req.json();
   const client = await clientPromise;
   const db = client.db("quiet_scheduler");
-
   const result = await db.collection("blocks").insertOne(body);
   return NextResponse.json({ insertedId: result.insertedId });
 }

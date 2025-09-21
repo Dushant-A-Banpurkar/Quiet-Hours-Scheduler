@@ -48,9 +48,6 @@ export default async function handler(
 
     const db = await getDB();
 
-
-
-
     const overlapping = await db.collection("quiet_scheduler").findOne({
       user_id: user.id,
       start_time: { $lt: newEnd },

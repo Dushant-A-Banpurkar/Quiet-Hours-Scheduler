@@ -34,7 +34,8 @@ export default function BlockForm({ onSuccess }: Props) {
     const res = await fetch("/api/blocks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ startTime, endTime, userId: user.id }),
+      body: JSON.stringify({ startTime, endTime, userId: user.id,email:user.email }),
+      
     });
 
     setLoading(false);

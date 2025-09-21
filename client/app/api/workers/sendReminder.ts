@@ -15,11 +15,19 @@ export async function sendReminders() {
   }).toArray();
 
   for (const block of blocks) {
+
+    const user=await db.collection("users").findOne({_id:block.userId});
+
+    if(!user || !user.email){
+      console.log(`User not found or email is missing for block with iD: ${block._id}`);
+      continue;
+    }
+
     await resend.emails.send({
       from: "onboarding@resend.dev",
-      to: block.email,
+      to: [user.email],
       subject: "Quiet Hour Reminder ⏰",
-      text: `Your quiet hour starts at ${new Date(block.start_time).toLocaleTimeString()}`
+      html: `Your quiet hour starts at ${new Date(block.start_time).toLocaleTimeString()}`
     });
 
     await db.collection("blocks").updateOne(
