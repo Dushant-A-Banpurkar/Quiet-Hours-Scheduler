@@ -11,7 +11,8 @@ export default function AuthPage(){
     const [error,setError]=useState("");
 
 
-    const handleSignup=async ()=>{
+    const handleSignup=async (e:React.FormEvent)=>{
+        e.preventDefault();
         setLoading(true);
         const {error}=await supabase.auth.signUp({
             email,
@@ -22,7 +23,8 @@ export default function AuthPage(){
         else alert("Check your email for confirmation!");
     };
 
-    const handleLogin=async()=>{
+    const handleLogin=async(e:React.FormEvent)=>{
+        e.preventDefault();
         setLoading(true);
         const {error}=await supabase.auth.signInWithPassword({
             email,
